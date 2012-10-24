@@ -1,0 +1,89 @@
+#!/bin/bash
+
+if [ -z $1 ] || [ -z $2 ] || [ $1 == "--help" ] || [ $1 == "-h" ]
+then
+  echo "Tool for making differential backups."
+  echo ""
+  echo "usage:  	`basename $0` SOURCE TARGET [--cleanup[=SCHEDULE]]"
+  echo "        	`basename $0` --help"
+  if [[ $1 != "--help" ]] && [[ $1 != "-h" ]]
+  then
+    exit 1
+  fi
+fi
+
+if [ $1 == "--help" ] || [ $1 == "-h" ]
+then
+  echo ""
+  echo "options:"
+  echo "  --cleanup	Remove old backups according to cleanup SCHEDULE after backing up."
+  echo "  --help, -h	Show this help."
+  echo ""
+  echo "  SOURCE	Directory to be backed up."
+  echo "  TARGET	Directory where all backups will be placed."
+  echo "  SCHEDULE	Path to schedule file. Default: schedules/default"
+  echo ""
+  echo "details:"
+  echo "  Backups are copied to TARGET/current. A differential copy is made to TARGET/{TIMESTAMP}. You can safely delete any backup - including TARGET/current - without affecting any of the copies."
+
+  exit 0;
+fi
+
+SOURCE=$1
+TARGET=$2
+FORMAT="%Y-%m-%d %H:%M:%S"
+SCHEDULE=`dirname $0`/schedules/default
+
+shift 2
+while :
+do
+  case "$1" in
+	--cleanup)
+		CLEANUP=true
+		shift 1
+		;;
+    --cleanup=*)
+		CLEANUP=true
+		SCHEDULE=${1:10}
+		shift 1
+		;;
+	--format=*)
+		FORMAT=${1:9}
+		shift 1
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+#echo "FORMAT=$FORMAT"
+#echo "CLEANUP=$CLEANUP"
+#echo "SCHEDULE=$SCHEDULE"
+
+if [ -z $SOURCE ]
+then
+  echo "Error. SOURCE not set!"
+  exit 1
+fi
+
+
+CURRENT="$TARGET/current"
+ARCHIVE_SUBDIR=`date "+$FORMAT"`
+ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
+
+mkdir -p "$CURRENT"
+
+echo "Creating differential backup $SOURCE --> $CURRENT"
+rsync -avz --progress "$SOURCE/" "$CURRENT"
+
+echo "Creating archive copy $CURRENT --> $ARCHIVE"
+cp -lar "$CURRENT" "$ARCHIVE"
+
+if [ $CLEANUP ] && [ "$SCHEDULE" ]
+then
+  export SCHEDULE=$SCHEDULE
+  export TARGET=$TARGET
+  echo "Cleaning up old directories."
+  `dirname $0`/cometcleanup
+fi
