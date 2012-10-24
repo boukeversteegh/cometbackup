@@ -7,11 +7,11 @@ GREP="cat"
 
 ls -1 $TARGET | $GREP | while read dir; do
 	dirdate=$dir
-	dirdate_seconds=$(date -d "$dir" +%s)
-
-
+	dirdate_seconds=$(date -d "$dir" +%s 2> /dev/null) || continue
+	
 	echo ""
-	echo -n $dir " "
+	echo -n "$dir "
+	
 	# Read schedule file and determine if directory should be deleted
 	cat $SCHEDULE | while read line; do
 	  [ ${line:0:1} == "#" ] && continue;
@@ -32,6 +32,8 @@ ls -1 $TARGET | $GREP | while read dir; do
 	    [ $filter_value == $filter_match ] && matched=true
 	  fi
 	  
+	  [ $matched == true ] && echo -n "!"
+
 	  old=false
 	  cmd_expiredate="date -d -$age_value$age_unit +%s"
 	  expiredate=`$cmd_expiredate`
@@ -42,8 +44,12 @@ ls -1 $TARGET | $GREP | while read dir; do
 
 	  if [ $old == true ] && [ $matched == "false" ]
 	  then
+	    
+	    #echo -n "rm"
+	    #chmod 777 "$TARGET/$dir"
+	    #echo rm -r \"$TARGET/$dir\"
 	    echo -n "rm"
-	    #echo rm -r \"$dir\"
+	    rm -r "$TARGET/$dir"
 	    break
 	  fi
 	done;
