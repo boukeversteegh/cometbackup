@@ -1,0 +1,5 @@
+10 minutes	MINUTE		/10
+1 day		HOUR		0
+1 week		DAYOFMONTH	/7
+31 days		DAYOFMONTH	1
+1 year		MONTH		/6

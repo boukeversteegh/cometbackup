@@ -1,0 +1,51 @@
+#!/bin/bash
+
+echo $TARGET
+
+GREP="grep -v $DIRNAMECURRENT"
+GREP="cat"
+
+ls -1 $TARGET | $GREP | while read dir; do
+	dirdate=$dir
+	dirdate_seconds=$(date -d "$dir" +%s)
+
+
+	echo ""
+	echo -n $dir " "
+	# Read schedule file and determine if directory should be deleted
+	cat $SCHEDULE | while read line; do
+	  [ ${line:0:1} == "#" ] && continue;
+
+	  cells=($line)
+	  age_value=${cells[0]}
+	  age_unit=${cells[1]}
+	  filter_key=${cells[2]}
+	  filter_match=${cells[3]}
+	  filter_value=$(date -d "$dirdate" +$filter_key)
+	  filter_matchvalue=${cells[3]:1}  
+	  
+	  matched=false
+	  if [ ${filter_match:0:1} == "/" ]
+	  then
+	    [ `expr $filter_value % $filter_matchvalue` == 0 ] && matched=true
+	  else
+	    [ $filter_value == $filter_match ] && matched=true
+	  fi
+	  
+	  old=false
+	  cmd_expiredate="date -d -$age_value$age_unit +%s"
+	  expiredate=`$cmd_expiredate`
+	  if [ $dirdate_seconds -le $expiredate ]
+	  then
+	    old=true
+	  fi
+
+	  if [ $old == true ] && [ $matched == "false" ]
+	  then
+	    echo -n "rm"
+	    #echo rm -r \"$dir\"
+	    break
+	  fi
+	done;
+
+done;
