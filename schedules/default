@@ -1,5 +1,8 @@
-10 minutes	MINUTE		/10
-1 day		HOUR		0
-1 week		DAYOFMONTH	/7
-31 days		DAYOFMONTH	1
-1 year		MONTH		/6
+#10 seconds	%S	/10	#After 10 seconds, keep every 10 seconds only
+#1 minute	%S	00	#After 1 minute, keep one per minute only, when seconds is 00
+#10 minutes	%M	/10	#After 10 minutes, keep every 10 minutes only
+#
+1 day		%H	00	#After 1 day, keep one per day only, when hour is 00
+1 week		%d	/7	#After 1 week, keep every 7 days only (1,8,15,22,28)
+31 days		%d	1	#After 32 days, Keep one per month only
+1 year		%m	/6	#After 1 year, every 6 months only
