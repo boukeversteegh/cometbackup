@@ -1,6 +1,94 @@
 #!/bin/bash
 
-echo $TARGET
+
+function help {
+	echo "Tool to cleanup old backups according to cleanup SCHEDULE."
+	echo ""
+	echo "usage:	`basename $0` TARGET SCHEDULE"
+	echo "	`basename $0` --help"
+	echo ""
+	echo "  TARGET	Directory where backups are placed."
+	echo "  SCHEDULE	Path to schedule file. Default: `dirname $0`/schedules/default"
+	echo ""
+	echo "		Schedule file format:"
+	echo "		EXPIRYPERIOD UNIT FILTER"
+	echo ""
+	echo "		Where:"
+	echo "		  EXPIRYPERIOD	An integer above 1 plus a unit. After this period, only backups matching the filter will be kept."
+	echo "				  10 seconds"
+	echo "				  1 day"
+	echo "				  3 weeks"
+	echo "		  UNIT		A time unit that will be matched by the filter."
+	echo "				  %S		Second        00-59"
+	echo "		  		  %M		Minute        00-59"
+	echo "		  		  %H		Hour          00-23"
+	echo "		  		  %w		Day of week   0-6"
+	echo "		  		  %d		Day of month  01-31"
+	echo "		  		  %m		Month         01-12"
+	echo "		  		  %Y		Year          1971-2012"
+	echo "		  FILTER	An expression that matches the unit. Can be one of the following"
+	echo "				VALUE		The unit should be exactly VALUE"
+	echo "				/INTEGER	The filter will match every INTEGER UNIT."
+	echo ""
+	echo "				  %S 00		Matches whenever seconds is 00"
+	echo "				  %M /10	Matches every 10 minutes (00, 10, 20 etc)"
+	echo "				  %m /2		Matches every 2 months (1, 3, 5)"
+	echo "		Example:"
+	echo "		1 week     %w 0	# Suppose you make daily backups. Of backups older than 1 week, only sundays will be kept."
+	echo "		3 hours    %H /3	# Suppose you make hourly backups. After 3 hours, only one backup in every 3 hours will be kept."
+	exit 0;
+}
+
+
+TEST=false
+
+if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]
+	then
+	help
+fi
+
+TARGET=$1
+SCHEDULE=$2
+
+shift 2
+
+while :
+do
+  case "$1" in
+	-h | --help)
+		help
+		;;
+	-t | --test)
+		shift 1
+		TEST="true"
+		;;
+	-*)
+		echo "Unrecognized command: $1"
+		exit 1
+		;;
+	*)
+		break;
+		;;
+	esac
+done
+
+
+if [ -z $TARGET ]
+	then
+	echo "No TARGET specified"
+	exit 1
+fi
+
+if [ -z $SCHEDULE ]
+	then
+	echo "No SCHEDULE specified."
+	exit 1
+fi
+
+if [ $TEST == "true" ]
+	then
+	echo "Test run. No directories will be deleted."
+fi
 
 GREP="grep -v $DIRNAMECURRENT"
 GREP="cat"
@@ -48,8 +136,6 @@ ls -1 $TARGET | $GREP | while read dir; do
 	    #echo -n "rm"
 	    #chmod 777 "$TARGET/$dir"
 	    #echo rm -r \"$TARGET/$dir\"
-	    echo -n "rm"
-	    rm -r "$TARGET/$dir"
 	    if [ $TEST == false ]
 		then
 			echo -n "deleting"
@@ -62,3 +148,4 @@ ls -1 $TARGET | $GREP | while read dir; do
 	done;
 
 done;
+echo ""
