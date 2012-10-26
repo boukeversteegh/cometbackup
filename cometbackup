@@ -75,7 +75,6 @@ ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 mkdir -p "$CURRENT"
 
 echo "Creating differential backup $SOURCE --> $CURRENT"
-rsync -avz --progress "$SOURCE/" "$CURRENT"
 rsync -avz "$SOURCE/" "$CURRENT"
 
 echo "Creating archive copy $CURRENT --> $ARCHIVE"
@@ -83,8 +82,8 @@ cp -lar "$CURRENT" "$ARCHIVE"
 
 if [ $CLEANUP ] && [ "$SCHEDULE" ]
 then
-  export SCHEDULE=$SCHEDULE
-  export TARGET=$TARGET
+  SCHEDULE=$SCHEDULE
+  TARGET=$TARGET
   echo "Cleaning up old directories."
-  `dirname $0`/cometcleanup
+  `dirname $0`/cometcleanup "$TARGET" "$SCHEDULE"
 fi
