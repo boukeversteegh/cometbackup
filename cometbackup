@@ -4,7 +4,7 @@ if [ -z $1 ] || [ -z $2 ] || [ $1 == "--help" ] || [ $1 == "-h" ]
 then
   echo "Tool for making differential backups."
   echo ""
-  echo "usage:  	`basename $0` SOURCE TARGET [--cleanup[=SCHEDULE]]"
+  echo "usage:  	`basename $0` SOURCE TARGET [--cleanup[=SCHEDULE]] [--format=FORMAT]"
   echo "        	`basename $0` --help"
   if [[ $1 != "--help" ]] && [[ $1 != "-h" ]]
   then
@@ -17,11 +17,13 @@ then
   echo ""
   echo "options:"
   echo "  --cleanup	Remove old backups according to cleanup SCHEDULE after backing up."
+  echo "  --format	Specify directory name FORMAT for the archive copies. Default = \"%Y-%m-%d %H:%M:%S\" (e.g. $(date "+%Y-%m-%d %H:%M:%S"))"
   echo "  --help, -h	Show this help."
   echo ""
   echo "  SOURCE	Directory to be backed up."
   echo "  TARGET	Directory where all backups will be placed."
   echo "  SCHEDULE	Path to schedule file. Default: schedules/default"
+  echo "  FORMAT	Format for archive directory names. See 'man date' for useable variables. Output of the format should be readable by 'date -d \$FORMAT'. Please test using example output ('date +\$FORMAT')."
   echo ""
   echo "details:"
   echo "  Backups are copied to TARGET/current. A differential copy is made to TARGET/{TIMESTAMP}. You can safely delete any backup - including TARGET/current - without affecting any of the copies."
