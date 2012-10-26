@@ -8,7 +8,7 @@ Tool for making differential backups.
 
 	options:
 	  --cleanup	Remove old backups according to cleanup SCHEDULE after backing up.
-	  --help, -h	Show this help.
+	  --help,-h	Show this help.
 
 	  SOURCE	Directory to be backed up.
 	  TARGET	Directory where all backups will be placed.
