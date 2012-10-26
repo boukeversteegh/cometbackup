@@ -50,6 +50,13 @@ ls -1 $TARGET | $GREP | while read dir; do
 	    #echo rm -r \"$TARGET/$dir\"
 	    echo -n "rm"
 	    rm -r "$TARGET/$dir"
+	    if [ $TEST == false ]
+		then
+			echo -n "deleting"
+	    	rm -r "$TARGET/$dir" &
+		else
+			echo -n "marked for deletion."
+		fi
 	    break
 	  fi
 	done;
