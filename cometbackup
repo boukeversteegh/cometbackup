@@ -102,5 +102,5 @@ then
   export SCHEDULE=$SCHEDULE
   export TARGET=$TARGET
   echo "Cleaning up old directories."
-  `dirname $0`/cometcleanup
+  `dirname $0`/cometcleanup $TARGET $SCHEDULE
 fi
