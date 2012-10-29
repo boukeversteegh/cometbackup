@@ -4,7 +4,11 @@ if [ -z $1 ] || [ -z $2 ] || [ $1 == "--help" ] || [ $1 == "-h" ]
 then
   echo "Tool for making differential backups."
   echo ""
+<<<<<<< HEAD
+  echo "usage:  	`basename $0` SOURCE TARGET [--cleanup] [--schedule=SCHEDULE]"
+=======
   echo "usage:  	`basename $0` SOURCE TARGET [--cleanup[=SCHEDULE]] [--format=FORMAT]"
+>>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
   echo "        	`basename $0` --help"
   if [[ $1 != "--help" ]] && [[ $1 != "-h" ]]
   then
@@ -17,13 +21,22 @@ then
   echo ""
   echo "options:"
   echo "  --cleanup	Remove old backups according to cleanup SCHEDULE after backing up."
+<<<<<<< HEAD
+  echo "  --schedule    Path to schedule file"
+  echo "  --format      Overrides FORMAT"
+=======
   echo "  --format	Specify directory name FORMAT for the archive copies. Default = \"%Y-%m-%d %H:%M:%S\" (e.g. $(date "+%Y-%m-%d %H:%M:%S"))"
+>>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
   echo "  --help, -h	Show this help."
   echo ""
   echo "  SOURCE	Directory to be backed up."
   echo "  TARGET	Directory where all backups will be placed."
   echo "  SCHEDULE	Path to schedule file. Default: schedules/default"
+<<<<<<< HEAD
+  echo "  FORMAT        Format for naming the backup directories. Use parameters that are accepted by 'date +FORMAT'. Default is '%Y-%m-%d %H:%M:%S'"
+=======
   echo "  FORMAT	Format for archive directory names. See 'man date' for useable variables. Output of the format should be readable by 'date -d \$FORMAT'. Please test using example output ('date +\$FORMAT')."
+>>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
   echo ""
   echo "details:"
   echo "  Backups are copied to TARGET/current. A differential copy is made to TARGET/{TIMESTAMP}. You can safely delete any backup - including TARGET/current - without affecting any of the copies."
@@ -35,33 +48,47 @@ SOURCE=$1
 TARGET=$2
 FORMAT="%Y-%m-%d %H:%M:%S"
 SCHEDULE=`dirname $0`/schedules/default
+TEST=false
 
 shift 2
 while :
 do
   case "$1" in
-	--cleanup)
-		CLEANUP=true
-		shift 1
-		;;
-    --cleanup=*)
-		CLEANUP=true
-		SCHEDULE=${1:10}
-		shift 1
-		;;
-	--format=*)
-		FORMAT=${1:9}
-		shift 1
-		;;
-	*)
-		break
-		;;
-	esac
+    --cleanup)
+	CLEANUP=true
+	shift 1
+	;;
+    --schedule=*)
+	SCHEDULE=${1:11}
+	shift 1
+	;;
+    --format=*)
+	FORMAT=${1:9}
+	shift 1
+	;;
+    --test)
+       TEST=true
+       shift 1
+       ;;
+    -*)
+      echo "Invalid option $1"
+      exit 1
+      ;;
+    *)
+	break
+	;;
+  esac
 done
 
-#echo "FORMAT=$FORMAT"
-#echo "CLEANUP=$CLEANUP"
-#echo "SCHEDULE=$SCHEDULE"
+if [ "$TEST" == "true" ]
+then
+  echo "SOURCE=$SOURCE"
+  echo "TARGET=$TARGET"
+  echo "FORMAT=$FORMAT"
+  echo "CLEANUP=$CLEANUP"
+  echo "SCHEDULE=$SCHEDULE"
+  exit
+fi
 
 if [ -z $SOURCE ]
 then
@@ -87,5 +114,10 @@ then
   SCHEDULE=$SCHEDULE
   TARGET=$TARGET
   echo "Cleaning up old directories."
+<<<<<<< HEAD
+  `dirname $0`/cometcleanup
+fi
+=======
   `dirname $0`/cometcleanup "$TARGET" "$SCHEDULE"
 fi
+>>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
