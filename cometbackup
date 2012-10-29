@@ -92,7 +92,7 @@ ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 mkdir -p "$CURRENT"
 
 echo "Creating differential backup $SOURCE --> $CURRENT"
-rsync -avz --progress "$SOURCE/" "$CURRENT"
+rsync -avz "$SOURCE/" "$CURRENT"
 
 echo "Creating archive copy $CURRENT --> $ARCHIVE"
 cp -lar "$CURRENT" "$ARCHIVE"
