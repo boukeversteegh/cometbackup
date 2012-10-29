@@ -40,6 +40,7 @@ LOG="false"
 LOGFILE="$TARGET/comet.log"
 TEST=false
 
+
 shift 2
 while :
 do
@@ -56,9 +57,10 @@ do
 	FORMAT=${1:9}
 	shift 1
 	;;
-	--log)
-	  LOG=true
-	  ;;
+    --log)
+        LOG="true"
+        shift 1
+        ;;
     --test)
        TEST=true
        shift 1
@@ -73,12 +75,10 @@ do
   esac
 done
 
-
 function log {
-	[ "$LOG" == "true" ] && echo $@ >> $LOGFILE;
-	echo $@;
+	[ "$LOG" == "true" ] && echo "$@" >> $LOGFILE;
+	echo "$@";
 }
-
 
 if [ "$TEST" == "true" ]
 then
@@ -104,13 +104,11 @@ ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 
 [ "$TEST" == "false" ] && mkdir -p "$CURRENT" && log "Creating TARGET directory $TARGET"
 
-CMD_BACKUP="rsync -avz \"$SOURCE/\" \"$CURRENT\""
-CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
+CMD_BACKUP=rsync\ -avz\ "$SOURCE/"\ "$CURRENT"
+CMD_ARCHIVE=cp\ -lar\ "$CURRENT"\ "$ARCHIVE"
 
-echo "Creating differential backup $SOURCE --> $CURRENT"
 log "Creating differential backup $SOURCE --> $CURRENT"
 log "  $CMD_BACKUP"
-
 
 [ "$TEST" == "false" ] && $CMD_BACKUP;
 
@@ -119,7 +117,7 @@ log "  $CMD_ARCHIVE"
 
 [ "$TEST" == "false" ] && $CMD_ARCHIVE;
 
-if [ $CLEANUP ] && [ "$SCHEDULE" ]
+if [ "$TEST" == "false" ] && [ $CLEANUP ] && [ "$SCHEDULE" ]
 then
   export SCHEDULE=$SCHEDULE
   export TARGET=$TARGET
