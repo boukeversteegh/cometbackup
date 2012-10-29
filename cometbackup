@@ -36,6 +36,8 @@ SOURCE=$1
 TARGET=$2
 FORMAT="%Y-%m-%d %H:%M:%S"
 SCHEDULE=`dirname $0`/schedules/default
+LOG="false"
+LOGFILE="$TARGET/comet.log"
 TEST=false
 
 shift 2
@@ -54,6 +56,9 @@ do
 	FORMAT=${1:9}
 	shift 1
 	;;
+	--log)
+	  LOG=true
+	  ;;
     --test)
        TEST=true
        shift 1
@@ -68,6 +73,13 @@ do
   esac
 done
 
+
+function log {
+	[ "$LOG" == "true" ] && echo $@ >> $LOGFILE;
+	echo $@;
+}
+
+
 if [ "$TEST" == "true" ]
 then
   echo "SOURCE=$SOURCE"
@@ -75,7 +87,8 @@ then
   echo "FORMAT=$FORMAT"
   echo "CLEANUP=$CLEANUP"
   echo "SCHEDULE=$SCHEDULE"
-  exit
+  echo "LOGFILE=$LOGFILE"
+  echo "LOG=$LOG"
 fi
 
 if [ -z $SOURCE ]
@@ -89,19 +102,28 @@ CURRENT="$TARGET/current"
 ARCHIVE_SUBDIR=`date "+$FORMAT"`
 ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 
-mkdir -p "$CURRENT"
+[ "$TEST" == "false" ] && mkdir -p "$CURRENT" && log "Creating TARGET directory $TARGET"
+
+CMD_BACKUP="rsync -avz \"$SOURCE/\" \"$CURRENT\""
+CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
 
 echo "Creating differential backup $SOURCE --> $CURRENT"
-rsync -avz "$SOURCE/" "$CURRENT"
+log "Creating differential backup $SOURCE --> $CURRENT"
+log "  $CMD_BACKUP"
 
-echo "Creating archive copy $CURRENT --> $ARCHIVE"
-cp -lar "$CURRENT" "$ARCHIVE"
+
+[ "$TEST" == "false" ] && $CMD_BACKUP;
+
+log "Creating archive copy $CURRENT --> $ARCHIVE"
+log "  $CMD_ARCHIVE"
+
+[ "$TEST" == "false" ] && $CMD_ARCHIVE;
 
 if [ $CLEANUP ] && [ "$SCHEDULE" ]
 then
   export SCHEDULE=$SCHEDULE
   export TARGET=$TARGET
-  echo "Cleaning up old directories."
+  log "Cleaning up backup directory."
   `dirname $0`/cometcleanup $TARGET $SCHEDULE
 fi
 echo "Done."
