@@ -4,11 +4,7 @@ if [ -z $1 ] || [ -z $2 ] || [ $1 == "--help" ] || [ $1 == "-h" ]
 then
   echo "Tool for making differential backups."
   echo ""
-<<<<<<< HEAD
   echo "usage:  	`basename $0` SOURCE TARGET [--cleanup] [--schedule=SCHEDULE]"
-=======
-  echo "usage:  	`basename $0` SOURCE TARGET [--cleanup[=SCHEDULE]] [--format=FORMAT]"
->>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
   echo "        	`basename $0` --help"
   if [[ $1 != "--help" ]] && [[ $1 != "-h" ]]
   then
@@ -21,22 +17,14 @@ then
   echo ""
   echo "options:"
   echo "  --cleanup	Remove old backups according to cleanup SCHEDULE after backing up."
-<<<<<<< HEAD
   echo "  --schedule    Path to schedule file"
   echo "  --format      Overrides FORMAT"
-=======
-  echo "  --format	Specify directory name FORMAT for the archive copies. Default = \"%Y-%m-%d %H:%M:%S\" (e.g. $(date "+%Y-%m-%d %H:%M:%S"))"
->>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
   echo "  --help, -h	Show this help."
   echo ""
   echo "  SOURCE	Directory to be backed up."
   echo "  TARGET	Directory where all backups will be placed."
   echo "  SCHEDULE	Path to schedule file. Default: schedules/default"
-<<<<<<< HEAD
   echo "  FORMAT        Format for naming the backup directories. Use parameters that are accepted by 'date +FORMAT'. Default is '%Y-%m-%d %H:%M:%S'"
-=======
-  echo "  FORMAT	Format for archive directory names. See 'man date' for useable variables. Output of the format should be readable by 'date -d \$FORMAT'. Please test using example output ('date +\$FORMAT')."
->>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
   echo ""
   echo "details:"
   echo "  Backups are copied to TARGET/current. A differential copy is made to TARGET/{TIMESTAMP}. You can safely delete any backup - including TARGET/current - without affecting any of the copies."
@@ -104,20 +92,15 @@ ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 mkdir -p "$CURRENT"
 
 echo "Creating differential backup $SOURCE --> $CURRENT"
-rsync -avz "$SOURCE/" "$CURRENT"
+rsync -avz --progress "$SOURCE/" "$CURRENT"
 
 echo "Creating archive copy $CURRENT --> $ARCHIVE"
 cp -lar "$CURRENT" "$ARCHIVE"
 
 if [ $CLEANUP ] && [ "$SCHEDULE" ]
 then
-  SCHEDULE=$SCHEDULE
-  TARGET=$TARGET
+  export SCHEDULE=$SCHEDULE
+  export TARGET=$TARGET
   echo "Cleaning up old directories."
-<<<<<<< HEAD
   `dirname $0`/cometcleanup
 fi
-=======
-  `dirname $0`/cometcleanup "$TARGET" "$SCHEDULE"
-fi
->>>>>>> d49e349b43b0157855f9268f5775f05992004fe4
