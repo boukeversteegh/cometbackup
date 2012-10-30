@@ -109,6 +109,8 @@ CURRENT_SUBDIR="current"
 CURRENT="$TARGET/$CURRENT_SUBDIR"
 ARCHIVE_SUBDIR=`date "+$FORMAT"`
 ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
+LOCKFILE_COMETBACKUP="$TARGET/.cometbackup.lock"
+LOCKFILE_COMETCLEANUP="$TARGET/.cometcleanup.lock"
 
 [ "$TEST" == "false" ] && mkdir -p "$CURRENT" && log "Creating TARGET directory $TARGET"
 
@@ -118,6 +120,18 @@ CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
 log "Creating differential backup $SOURCE --> $CURRENT"
 log "  $CMD_BACKUP"
 
+
+ERROR="false";
+lockfile-create --retry 10 "$LOCKFILE_COMETBACKUP" || ERROR="true"
+lockfile-touch "$LOCKFILE_COMETBACKUP" &
+LOCKPID="$!"
+
+if [ "$ERROR" == true ]
+then
+	echo "Another cometbackup process is still running: $TARGET"
+	exit 1;
+fi
+
 [ "$TEST" == "false" ] && eval $CMD_BACKUP;
 
 log "Creating archive copy $CURRENT_SUBDIR --> $ARCHIVE_SUBDIR"
@@ -125,11 +139,20 @@ log "  $CMD_ARCHIVE"
 
 [ "$TEST" == "false" ] && eval $CMD_ARCHIVE;
 
+kill "${LOCKPID}"
+lockfile-remove "$LOCKFILE_COMETBACKUP"
+
 if [ "$TEST" == "false" ] && [ $CLEANUP ] && [ "$SCHEDULE" ]
 then
   export SCHEDULE=$SCHEDULE
   export TARGET=$TARGET
   log "Cleaning up backup directory."
+  #ERROR=false && lockfile "$LOCKFILE_COMETCLEANUP" -l 60 -r 10 || ERROR=true
+  #if [ "$ERROR" == true ]
+  #then
+  #  echo "Another cometcleanup process is still running: $TARGET"
+  #  exit 1;
+  #fi
   `dirname $0`/cometcleanup "$TARGET" "$SCHEDULE"
 fi
 echo "Done."
