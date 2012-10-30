@@ -105,8 +105,8 @@ then
   exit 1
 fi
 
-
-CURRENT="$TARGET/current"
+CURRENT_SUBDIR="current"
+CURRENT="$TARGET/$CURRENT_SUBDIR"
 ARCHIVE_SUBDIR=`date "+$FORMAT"`
 ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 
@@ -120,7 +120,7 @@ log "  $CMD_BACKUP"
 
 [ "$TEST" == "false" ] && eval $CMD_BACKUP;
 
-log "Creating archive copy $CURRENT --> $ARCHIVE"
+log "Creating archive copy $CURRENT_SUBDIR --> $ARCHIVE_SUBDIR"
 log "  $CMD_ARCHIVE"
 
 [ "$TEST" == "false" ] && eval $CMD_ARCHIVE;
