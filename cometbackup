@@ -85,12 +85,9 @@ function log {
 	echo "$@";
 }
 
-filelog "Starting CometBackup"
-filelog "  cometbackup $PARAMS"
-
 if [ "$TEST" == "true" ]
 then
-  #log "Test-mode: No backups and directories will be made."
+  echo "Test-mode: No backups and directories will be made."
   echo "SOURCE=$SOURCE"
   echo "TARGET=$TARGET"
   echo "FORMAT=$FORMAT"
@@ -113,7 +110,17 @@ ARCHIVE="$TARGET/$ARCHIVE_SUBDIR"
 LOCKFILE_COMETBACKUP="$TARGET/.cometbackup.lock"
 LOCKFILE_COMETCLEANUP="$TARGET/.cometcleanup.lock"
 
-[ "$TEST" == "false" ] && mkdir -p "$CURRENT" && log "Creating TARGET directory $TARGET"
+if [ "$TEST" == "false" ]
+then
+	if [ ! -d "$CURRENT" ]
+	then
+	  mkdir -p "$CURRENT" && TARGETDIR_CREATED="true"
+	fi
+fi
+
+filelog "Starting CometBackup"
+filelog "  cometbackup $PARAMS"
+[ ! -z "$TARGETDIR_CREATED" ] && log "Created TARGET directory $TARGET"
 
 CMD_BACKUP="rsync -avz \"$SOURCE\" \"$CURRENT\""
 CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
