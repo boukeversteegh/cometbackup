@@ -136,7 +136,7 @@ ls -1 $TARGET | grep -v "current" | while read dir; do
 	    if [ $TEST == false ]
 		then
 			echo -n "deleting"
-	    	rm -r "$TARGET/$dir" &
+	    	rm -r "$TARGET/$dir"
 		else
 			echo -n "marked for deletion."
 		fi
