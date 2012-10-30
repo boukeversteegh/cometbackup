@@ -89,7 +89,7 @@ filelog "  cometbackup $PARAMS"
 
 if [ "$TEST" == "true" ]
 then
-  log "Test-mode: No backups and directories will be made."
+  #log "Test-mode: No backups and directories will be made."
   echo "SOURCE=$SOURCE"
   echo "TARGET=$TARGET"
   echo "FORMAT=$FORMAT"
