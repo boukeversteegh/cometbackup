@@ -40,6 +40,7 @@ SCHEDULE=`dirname $0`/schedules/default
 LOG="false"
 LOGFILE="$TARGET/comet.log"
 TEST=false
+PID="$$"
 
 shift 2
 while :
@@ -76,7 +77,7 @@ do
 done
 
 function filelog {
-	[ "$LOG" == "true" ] && echo `date` "$@" >> $LOGFILE;
+	[ "$LOG" == "true" ] && echo `date` "[$PID]" "$@" >> $LOGFILE;
 }
 
 function log {
@@ -117,9 +118,6 @@ LOCKFILE_COMETCLEANUP="$TARGET/.cometcleanup.lock"
 CMD_BACKUP="rsync -avz \"$SOURCE\" \"$CURRENT\""
 CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
 
-log "Creating differential backup $SOURCE --> $CURRENT"
-log "  $CMD_BACKUP"
-
 
 ERROR="false";
 lockfile-create --retry 10 "$LOCKFILE_COMETBACKUP" || ERROR="true"
@@ -128,9 +126,12 @@ LOCKPID="$!"
 
 if [ "$ERROR" == true ]
 then
-	echo "Another cometbackup process is still running: $TARGET"
+	log "ERROR: Another cometbackup process is still running: $TARGET. Canceling backup."
 	exit 1;
 fi
+
+log "Creating differential backup $SOURCE --> $CURRENT"
+log "  $CMD_BACKUP"
 
 [ "$TEST" == "false" ] && eval $CMD_BACKUP;
 
