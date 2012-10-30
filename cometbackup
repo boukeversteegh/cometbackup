@@ -32,6 +32,7 @@ then
   exit 0;
 fi
 
+PARAMS="$@"
 SOURCE=$1
 TARGET=$2
 FORMAT="%Y-%m-%d %H:%M:%S"
@@ -39,7 +40,6 @@ SCHEDULE=`dirname $0`/schedules/default
 LOG="false"
 LOGFILE="$TARGET/comet.log"
 TEST=false
-
 
 shift 2
 while :
@@ -75,13 +75,21 @@ do
   esac
 done
 
-function log {
+function filelog {
 	[ "$LOG" == "true" ] && echo `date` "$@" >> $LOGFILE;
+}
+
+function log {
+	filelog "$@";
 	echo "$@";
 }
 
+filelog "Starting CometBackup"
+filelog "  cometbackup $PARAMS"
+
 if [ "$TEST" == "true" ]
 then
+  log "Test-mode: No backups and directories will be made."
   echo "SOURCE=$SOURCE"
   echo "TARGET=$TARGET"
   echo "FORMAT=$FORMAT"
