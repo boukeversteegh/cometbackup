@@ -122,7 +122,7 @@ filelog "Starting CometBackup"
 filelog "  cometbackup $PARAMS"
 [ ! -z "$TARGETDIR_CREATED" ] && log "Created TARGET directory $TARGET"
 
-CMD_BACKUP="rsync -avz \"$SOURCE/\" \"$CURRENT\""
+CMD_BACKUP="rsync -avz --delete \"$SOURCE/\" \"$CURRENT\""
 CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
 
 
