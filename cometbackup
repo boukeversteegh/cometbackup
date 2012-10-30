@@ -76,7 +76,7 @@ do
 done
 
 function log {
-	[ "$LOG" == "true" ] && echo "$@" >> $LOGFILE;
+	[ "$LOG" == "true" ] && echo `date` "$@" >> $LOGFILE;
 	echo "$@";
 }
 
