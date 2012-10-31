@@ -1,11 +1,16 @@
 #!/bin/bash
-
+VERSION="0.6"
 if [ -z $1 ] || [ -z $2 ] || [ $1 == "--help" ] || [ $1 == "-h" ]
 then
-  echo "Tool for making differential backups."
+  echo "`basename $0`  version $VERSION"
+  echo "<github.com/boukeversteegh/cometbackup>"
   echo ""
-  echo "usage:  	`basename $0` SOURCE TARGET [--cleanup] [--schedule=SCHEDULE]"
-  echo "        	`basename $0` --help"
+  echo "CometBackup is a tool for making (local) differential backups."
+  echo "CometCleanup is a tool for intelligently removing old backups according to a cleanup-schedule."
+  echo ""
+  echo "Usage:         `basename $0` SOURCE TARGET [--format=FORMAT] [--log] [--test] \\"
+  echo "                 [--cleanup] [--schedule=SCHEDULE]"
+  echo "               `basename $0` --help"
   if [[ $1 != "--help" ]] && [[ $1 != "-h" ]]
   then
     exit 1
@@ -15,19 +20,26 @@ fi
 if [ $1 == "--help" ] || [ $1 == "-h" ]
 then
   echo ""
-  echo "options:"
-  echo "  --cleanup	Remove old backups according to cleanup SCHEDULE after backing up."
-  echo "  --schedule    Path to schedule file"
-  echo "  --format      Overrides FORMAT"
-  echo "  --help, -h	Show this help."
+  echo "Options"
+  echo "  --log        Write log-messages to TARGET/comet.log"
+  echo "  --test       For debugging.  Don't perform backups,  shows  setting  values."
+  echo "  --format     Overrides FORMAT for archive copies of backups."
+  echo "  --cleanup    Run cometcleanup after backing up. Remove old backups according"
+  echo "               to SCHEDULE after backing up. See: cometcleanup --help"
+  echo "  --schedule   Override schedule file. Default: 'schedules/default'."
+  echo "  --help, -h   Show this help."
   echo ""
-  echo "  SOURCE	Directory to be backed up."
-  echo "  TARGET	Directory where all backups will be placed."
-  echo "  SCHEDULE	Path to schedule file. Default: schedules/default"
-  echo "  FORMAT        Format for naming the backup directories. Use parameters that are accepted by 'date +FORMAT'. Default is '%Y-%m-%d %H:%M:%S'"
+  echo "  SOURCE       Directory to be backed up.  E.g: '/home/admin'.  Don't add a '/'."
+  echo "  TARGET       Directory where all backups will be placed. E.g: '/backup/admin'."
+  echo "  FORMAT       Format for naming the backup archive copies. Use parameters that"
+  echo "               are accepted by 'date +FORMAT'.  Default is '%Y-%m-%d %H:%M:%S'."
+  echo "  SCHEDULE     Path to schedule file. Default: 'schedules/default'."
+  echo "               Refer to 'cometcleanup --help' for more details."
   echo ""
-  echo "details:"
-  echo "  Backups are copied to TARGET/current. A differential copy is made to TARGET/{TIMESTAMP}. You can safely delete any backup - including TARGET/current - without affecting any of the copies."
+  echo "Details"
+  echo "  SOURCE directory is synced to TARGET/current. A differential copy is made to"
+  echo "  TARGET/{TIMESTAMP}. You can safely delete any backup - including "
+  echo "  TARGET/current - without affecting any of the copies."
 
   exit 0;
 fi
@@ -47,17 +59,17 @@ while :
 do
   case "$1" in
     --cleanup)
-	CLEANUP=true
-	shift 1
-	;;
+      CLEANUP=true
+      shift 1
+      ;;
     --schedule=*)
-	SCHEDULE=${1:11}
-	shift 1
-	;;
+      SCHEDULE=${1:11}
+      shift 1
+      ;;
     --format=*)
-	FORMAT=${1:9}
-	shift 1
-	;;
+      FORMAT=${1:9}
+      shift 1
+      ;;
     --log)
         LOG="true"
         shift 1
@@ -71,8 +83,8 @@ do
       exit 1
       ;;
     *)
-	break
-	;;
+      break
+      ;;
   esac
 done
 
