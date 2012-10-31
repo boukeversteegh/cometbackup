@@ -85,6 +85,34 @@ function log {
 	echo "$@";
 }
 
+function lockfile_create {
+  ERROR="false"
+  if [ -n "$(type -P lockfile-create)" ]
+  then
+    lockfile-create --retry 10 "$1" || ERROR="true"
+    lockfile-touch "$1" &
+    LOCKPID="$!"
+  else
+    lockfile -r 10 "$1.lock" || ERROR="true"
+  fi
+
+  if [ "$ERROR" == true ]
+  then
+    log "ERROR: Another cometbackup process is still running: $TARGET. Canceling backup."
+    exit 1;
+  fi
+}
+
+function lockfile_remove {
+  if [ -n "$(type -P lockfile-remove)" ]
+  then
+    kill "${LOCKPID}"
+    lockfile-remove "$1"
+  else
+    rm -f "$1.lock"
+  fi
+}
+
 if [ "$TEST" == "true" ]
 then
   echo "Test-mode: No backups and directories will be made."
@@ -125,17 +153,8 @@ filelog "  cometbackup $PARAMS"
 CMD_BACKUP="rsync -avz --delete \"$SOURCE/\" \"$CURRENT\""
 CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
 
-
-ERROR="false";
-lockfile-create --retry 10 "$LOCKFILE_COMETBACKUP" || ERROR="true"
-lockfile-touch "$LOCKFILE_COMETBACKUP" &
-LOCKPID="$!"
-
-if [ "$ERROR" == true ]
-then
-	log "ERROR: Another cometbackup process is still running: $TARGET. Canceling backup."
-	exit 1;
-fi
+# LOCK
+lockfile_create "$LOCKFILE_COMETBACKUP"
 
 log "Creating differential backup $SOURCE --> $CURRENT"
 log "  $CMD_BACKUP"
@@ -147,8 +166,7 @@ log "  $CMD_ARCHIVE"
 
 [ "$TEST" == "false" ] && eval $CMD_ARCHIVE;
 
-kill "${LOCKPID}"
-lockfile-remove "$LOCKFILE_COMETBACKUP"
+lockfile_remove "$LOCKFILE_COMETBACKUP"
 
 if [ "$TEST" == "false" ] && [ $CLEANUP ] && [ "$SCHEDULE" ]
 then
