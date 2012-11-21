@@ -69,7 +69,7 @@ PID="$$"
 if [ "${TARGET:0:6}" == "ssh://" ]
 then
 	TARGET_SSH="true"
-	TARGET_PREFIX="-e ssh"
+	#TARGET_PREFIX="-e ssh"
 	TARGET="${TARGET:6}"
 	TARGET_HOST="${TARGET:0:$(expr $(expr index $TARGET :) - 1)}"
 	TARGET=${TARGET:$(expr index $TARGET :)}
@@ -194,7 +194,7 @@ filelog "  cometbackup $PARAMS"
 [ ! -z "$TARGETDIR_CREATED" ] && log "Created TARGET directory $TARGET"
 
 
-if [ "$SSH_TARGET" == "false" ]
+if [ "$TARGET_SSH" == "false" ]
 then
   CMD_BACKUP="rsync -avzW --delete \"$SOURCE/\" \"$CURRENT\""
   CMD_ARCHIVE="cp -lar \"$CURRENT\" \"$ARCHIVE\""
