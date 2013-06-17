@@ -183,15 +183,22 @@ LOCKFILE_COMETCLEANUP="$TARGET/.cometcleanup"
 
 if [ "$TEST" == "false" ]
 then
+	if [ ! -d "$TARGET" ]
+	then
+	  mkdir -p "$TARGET" || log "Couldn't create TARGET dir $TARGET"
+	fi
+
 	if [ ! -d "$CURRENT" ]
 	then
-	  mkdir -p "$CURRENT" && TARGETDIR_CREATED="true"
+	  cd "$TARGET"
+	  mkdir "$CURRENT_SUBDIR" && TARGETDIR_CREATED="true"
+	  cd -
 	fi
 fi
 
 filelog "Starting CometBackup"
 filelog "  cometbackup $PARAMS"
-[ ! -z "$TARGETDIR_CREATED" ] && log "Created TARGET directory $TARGET"
+[ ! -z "$TARGETDIR_CREATED" ] && log "Created TARGET directory $CURRENT"
 
 
 if [ "$TARGET_SSH" == "false" ]
